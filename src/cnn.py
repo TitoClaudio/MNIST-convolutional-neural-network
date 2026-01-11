@@ -3,6 +3,7 @@ import numpy as np
 from conv import Conv3x3
 from maxpool import MaxPool
 from softmax import Softmax
+from model_utils import save_model
 
 # Load MNIST dataset using PyTorch
 test_dataset = datasets.MNIST(root='./data', train=False, download=True)
@@ -10,8 +11,8 @@ train_dataset = datasets.MNIST(root='./data', train=True, download=True)
 
 test_images = test_dataset.data.numpy()[:200]
 test_labels = test_dataset.targets.numpy()[:200]
-train_images = train_dataset.data.numpy()[:2000]
-train_labels = train_dataset.targets.numpy()[:2000]
+train_images = train_dataset.data.numpy()[:4000]
+train_labels = train_dataset.targets.numpy()[:4000]
 test_images = (test_images / 255.0) - 0.5  # Normalize to [-0.5, 0.5]
 train_images = (train_images / 255.0) - 0.5  # Normalize to [-0.5, 0.5]
 
@@ -79,5 +80,23 @@ for im, label in zip(test_images, test_labels):
   num_correct += acc
 
 num_tests = len(test_images)
-print('Test Loss:', loss / num_tests)
-print('Test Accuracy:', num_correct / num_tests)
+test_loss = loss / num_tests
+test_accuracy = num_correct / num_tests
+print('Test Loss:', test_loss)
+print('Test Accuracy:', test_accuracy)
+
+# Save the trained model
+save_model(
+    conv.filters,
+    softmax.weights,
+    softmax.biases,
+    filepath='trained_cnn_model.npz',
+    metadata={
+        'test_accuracy': test_accuracy,
+        'test_loss': test_loss,
+        'epochs': 3,
+        'learning_rate': 0.005,
+        'train_samples': len(train_images),
+        'test_samples': len(test_images)
+    }
+)

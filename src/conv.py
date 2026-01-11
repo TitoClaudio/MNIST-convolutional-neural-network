@@ -42,7 +42,6 @@ class Conv3x3:
       for f in range(self.num_filters):
         d_L_d_filters[f] += d_L_d_out[i, j, f] * im_region
 
-    # Update filters
     self.filters -= learn_rate * d_L_d_filters
 
     # Not returning anything since this is the first layer. 
