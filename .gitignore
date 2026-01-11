@@ -1,0 +1,15 @@
+# Test files
+src/test_prediction.py
+
+# Model files
+trained_cnn_model.npz
+
+# PNG images in root
+*.png
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
