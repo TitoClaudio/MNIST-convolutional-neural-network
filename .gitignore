@@ -16,3 +16,11 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+
+# Package build files
+*.egg-info/
+build/
+dist/
+
+# Virtual environment
+.venv/

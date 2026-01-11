@@ -1,9 +1,7 @@
 import numpy as np
 from PIL import Image
-from conv import Conv3x3
-from maxpool import MaxPool
-from softmax import Softmax
-from model_utils import load_model
+from src.layers import Conv3x3, MaxPool, Softmax
+from src.utils.model_utils import load_model
 
 def load_trained_model(filepath='trained_cnn_model.npz'):
     """
@@ -64,6 +62,35 @@ def predict_digit(image, conv, pool, softmax):
     return predicted_digit, confidence, out
 
 
+def preprocess_image(img):
+    """
+    Preprocess a PIL Image for prediction.
+
+    Parameters:
+    -----------
+    img : PIL.Image
+        Image to preprocess
+
+    Returns:
+    --------
+    numpy.ndarray : Preprocessed 28x28 image array
+    """
+    # Convert to grayscale and resize to 28x28
+    img = img.convert('L')
+    img = img.resize((28, 28))
+    img_array = np.array(img)
+
+    # MNIST uses white digits on black background
+    # If the image has a light background (average brightness > 127), invert it
+    if np.mean(img_array) > 127:
+        img_array = 255 - img_array
+
+    # Normalize to [-0.5, 0.5]
+    img_array = (img_array / 255.0) - 0.5
+
+    return img_array
+
+
 def load_image_from_file(filepath):
     """
     Load and preprocess an image file for prediction.
@@ -77,20 +104,8 @@ def load_image_from_file(filepath):
     --------
     numpy.ndarray : Preprocessed 28x28 image
     """
-    # Load image and convert to grayscale 28x28
-    img = Image.open(filepath).convert('L')
-    img = img.resize((28, 28))
-    img_array = np.array(img)
-
-    # MNIST uses white digits on black background
-    # If the image has a light background (average brightness > 127), invert it
-    if np.mean(img_array) > 127:
-        img_array = 255 - img_array
-
-    # Normalize to [-0.5, 0.5]
-    img_array = (img_array / 255.0) - 0.5
-
-    return img_array
+    img = Image.open(filepath)
+    return preprocess_image(img)
 
 
 def predict_from_file(image_path, model_path='trained_cnn_model.npz'):

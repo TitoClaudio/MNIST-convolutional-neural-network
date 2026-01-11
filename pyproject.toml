@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cnn-digit-recognition"
+version = "1.0.0"
+description = "CNN for handwritten digit recognition built from scratch with NumPy"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.9.0",
+    "torchvision>=0.24.0",
+    "numpy>=2.4.0",
+    "fastapi[standard]>=0.128.0",
+    "pillow>=12.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]

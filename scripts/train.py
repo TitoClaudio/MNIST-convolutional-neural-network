@@ -1,9 +1,8 @@
 from torchvision import datasets
 import numpy as np
-from conv import Conv3x3
-from maxpool import MaxPool
-from softmax import Softmax
-from model_utils import save_model
+
+from src.layers import Conv3x3, MaxPool, Softmax
+from src.utils import save_model
 
 # Load MNIST dataset using PyTorch
 test_dataset = datasets.MNIST(root='./data', train=False, download=True)
@@ -11,8 +10,8 @@ train_dataset = datasets.MNIST(root='./data', train=True, download=True)
 
 test_images = test_dataset.data.numpy()[:200]
 test_labels = test_dataset.targets.numpy()[:200]
-train_images = train_dataset.data.numpy()[:4000]
-train_labels = train_dataset.targets.numpy()[:4000]
+train_images = train_dataset.data.numpy()
+train_labels = train_dataset.targets.numpy()
 test_images = (test_images / 255.0) - 0.5  # Normalize to [-0.5, 0.5]
 train_images = (train_images / 255.0) - 0.5  # Normalize to [-0.5, 0.5]
 

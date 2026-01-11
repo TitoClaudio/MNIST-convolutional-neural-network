@@ -50,16 +50,6 @@ def save_model(conv_filters, softmax_weights, softmax_biases, filepath=None, met
 
     np.savez_compressed(filepath, **save_dict)
 
-    file_size = os.path.getsize(filepath)
-    size_kb = file_size / 1024
-
-    print(f'✓ Model saved to: {filepath}')
-    print(f'  File size: {size_kb:.2f} KB')
-    print(f'  Parameters saved:')
-    print(f'    - Conv filters: {conv_filters.shape}')
-    print(f'    - Softmax weights: {softmax_weights.shape}')
-    print(f'    - Softmax biases: {softmax_biases.shape}')
-
     if metadata:
         print(f'  Metadata: {list(metadata.keys())}')
 
@@ -104,12 +94,6 @@ def load_model(filepath):
 
     if not result['metadata']:
         result['metadata'] = None
-
-    print(f'✓ Model loaded from: {filepath}')
-    print(f'  Parameters loaded:')
-    print(f'    - Conv filters: {result["conv_filters"].shape}')
-    print(f'    - Softmax weights: {result["softmax_weights"].shape}')
-    print(f'    - Softmax biases: {result["softmax_biases"].shape}')
 
     if result['metadata']:
         print(f'  Metadata: {result["metadata"]}')

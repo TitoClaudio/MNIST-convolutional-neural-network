@@ -1,0 +1,44 @@
+# Virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Git
+.git/
+.gitignore
+
+# Dataset (too large, not needed for build)
+data/
+
+# Scripts (training, not needed for API)
+scripts/
+
+# Build artifacts
+build/
+dist/
+
+# Test images
+*.png
+*.jpg
+*.jpeg
+
+# IDE
+.vscode/
+.idea/
+
+# README
+README.md
+
+# Dockerfile and .dockerignore are needed for the build
+!Dockerfile
+!.dockerignore
+
+# IMPORTANT: Include the trained model
+!trained_cnn_model.npz

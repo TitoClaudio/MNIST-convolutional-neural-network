@@ -23,19 +23,19 @@ Softmax Layer (Fully Connected)
 
 ### Layer Details
 
-**Convolutional Layer** ([conv.py](src/conv.py))
+**Convolutional Layer** ([conv.py](src/layers/conv.py))
 - 8 filters with 3×3 kernels
 - Extracts spatial features like edges, curves, and patterns
 - Uses Xavier initialization for weights
 - Forward and backward propagation implemented
 
-**Max Pooling Layer** ([maxpool.py](src/maxpool.py))
+**Max Pooling Layer** ([maxpool.py](src/layers/maxpool.py))
 - 2×2 pooling window with stride 2
 - Reduces spatial dimensions by half
 - Provides translation invariance
 - Implements gradient routing in backpropagation
 
-**Softmax Layer** ([softmax.py](src/softmax.py))
+**Softmax Layer** ([softmax.py](src/layers/softmax.py))
 - Fully connected layer with 1,352 input features (flattened 13×13×8)
 - 10 output nodes (one per digit class)
 - Converts raw scores to probability distribution
@@ -57,18 +57,19 @@ Uses the MNIST dataset:
 - Image format: 28×28 grayscale pixels
 - Normalization: Pixel values scaled to [-0.5, 0.5]
 
-## Requirements
+## Installation
 
-```
-torch>=2.9.0
-torchvision>=0.24.0
-numpy>=2.4.0
-```
-
-Install dependencies:
+1. Install the project in editable mode (this allows clean imports of the `src` package):
 ```bash
-pip install torch torchvision numpy
+pip install -e .
 ```
+
+This will install the project along with all dependencies:
+- torch>=2.9.0
+- torchvision>=0.24.0
+- numpy>=2.4.0
+- fastapi[standard]>=0.128.0
+- pillow>=12.0.0
 
 ## Usage
 
@@ -76,7 +77,7 @@ pip install torch torchvision numpy
 
 Run the training script:
 ```bash
-python src/cnn.py
+python scripts/train.py
 ```
 
 The script will:
@@ -138,6 +139,75 @@ The prediction module automatically:
 - **Content**: Single handwritten digit (0-9)
 - **Background**: Any color (auto-inverted if needed)
 - The image will be automatically resized to 28×28 pixels
+
+### API Endpoints
+
+The project includes a FastAPI server ([main.py](src/api/main.py)) with REST endpoints:
+
+**GET /** - Health check and model information
+
+**GET /model/info** - Returns model architecture details and training metadata
+
+**POST /predict** - Upload an image file to predict the digit
+- Request: multipart/form-data with image file
+- Response: predicted digit, confidence score, and probability distribution
+
+**POST /predict/base64** - Predict from base64 encoded image
+- Request: JSON with `{"image": "base64_string"}`
+- Response: predicted digit, confidence score, and probability distribution
+
+Run the server:
+```bash
+# Development (with auto-reload)
+fastapi dev src/api/main.py
+
+# Production
+fastapi run src/api/main.py
+```
+
+Interactive API documentation available at `/docs` endpoint.
+
+## Deployment
+
+The API is deployed on Google Cloud Run and can be accessed at your Cloud Run URL.
+
+### Docker
+
+The project includes a Dockerfile for containerization:
+
+```bash
+# Build Docker image locally
+docker build -t cnn-digit-recognition .
+
+# Run container locally
+docker run -p 8080:8080 cnn-digit-recognition
+```
+
+### Google Cloud Run Deployment
+
+To deploy to Google Cloud Run:
+
+```bash
+# Build and push image to Google Container Registry
+gcloud builds submit --tag gcr.io/cnn-digit-recognition/cnn-api
+
+# Deploy to Cloud Run
+gcloud run deploy cnn-api \
+  --image gcr.io/cnn-digit-recognition/cnn-api \
+  --platform managed \
+  --region southamerica-east1 \
+  --allow-unauthenticated \
+  --memory 2Gi \
+  --cpu 2
+```
+
+### Updating the Deployed Model
+
+To update the model in production:
+
+1. Train a new model: `python scripts/train.py`
+2. Rebuild the image: `gcloud builds submit --tag gcr.io/cnn-digit-recognition/cnn-api`
+3. Redeploy: `gcloud run deploy cnn-api --image gcr.io/cnn-digit-recognition/cnn-api ...`
 
 ## Implementation Details
 
@@ -228,14 +298,25 @@ The model file format (`.npz`) is:
 ```
 CNN/
 ├── src/
-│   ├── cnn.py          # Main training script with model saving
-│   ├── conv.py         # Convolutional layer implementation
-│   ├── maxpool.py      # Max pooling layer implementation
-│   ├── softmax.py      # Softmax layer implementation
-│   ├── model_utils.py  # Model save/load utilities
-│   └── predict.py      # Inference utilities for custom images
-├── data/               # MNIST dataset (downloaded automatically)
-├── trained_cnn_model.npz  # Saved model (generated after training)
+│   ├── layers/              # Neural network layers
+│   │   ├── conv.py          # Convolutional layer
+│   │   ├── maxpool.py       # Max pooling layer
+│   │   └── softmax.py       # Softmax layer
+│   ├── utils/               # Utility modules
+│   │   ├── model_utils.py   # Model save/load
+│   │   └── predict.py       # Inference utilities
+│   └── api/                 # FastAPI application
+│       └── main.py          # API endpoints
+├── scripts/
+│   └── train.py             # Training script
+├── config.py                # Configuration settings
+├── data/                    # MNIST dataset (auto-downloaded)
+├── trained_cnn_model.npz    # Saved model (generated)
+├── pyproject.toml           # Package configuration
+├── requirements.txt         # Dependencies
+├── Dockerfile               # Docker container configuration
+├── .dockerignore           # Docker build exclusions
+├── .gcloudignore           # Cloud Build exclusions
 └── README.md
 ```
 
